@@ -1,0 +1,164 @@
+<div class="block block-filters block-widget load" id="filters-widget-block">
+   <div class="block-content">
+      <div class="block-header">
+         <div class="h4 block-title">{#filter#}</div>
+      </div>
+      <div class="block-body" id="filter-categories">
+         <a class="block-link" data-toggle="collapse" href="#filters-widget-block-categories-collapse" title="{#categories#}">
+            <div class="block-subtitle h6">{#categories#}</div>
+         </a>
+         <nav class="collapse show" id="filters-widget-block-categories-collapse">
+            <ul class="block-menu menu">
+               
+            </ul>
+         </nav>
+      </div>
+      <div class="block-body" html-if="BRANDS.length" id="mm-brands-filter">
+         <a class="block-link" data-toggle="collapse" href="#filters-widget-block-brands-collapse" title="{#brands#}">
+            <div class="block-subtitle h6">{#brands#}</div>
+         </a>
+         <nav class="collapse show" id="filters-widget-block-brands-collapse">
+            <ul class="filters-widget-block-list-unstyled list-unstyled" data-key="brand">
+               
+            </ul>
+         </nav>
+      </div>
+      
+      <div class="block-body">
+         <a class="block-link collapsed" data-toggle="collapse" href="#filters-widget-block-price-range-collapse" title="{#price#}">
+            <div class="block-subtitle h6">{#price#}</div>
+         </a>
+         <div class="collapse" id="filters-widget-block-price-range-collapse">
+            <dl class="row">
+               <dt class="col col-auto">{{TARGET_CURRENCY}}&nbsp;{{PRICE.MIN}}</dt>
+               <dd class="col text-center" id="filters-widget-block-dt">{{PRICE.MIN_SELECTED}}&nbsp;-&nbsp;{{PRICE.MAX_SELECTED}}</dd>
+               <dt class="col col-auto">{{TARGET_CURRENCY}}&nbsp;{{PRICE.MAX}}</dt>
+            </dl>
+            <input id="filters-widget-block-price-range-input" data-slider-max="{{PRICE.MAX}}" data-slider-min="{{PRICE.MIN}}" data-slider-step="1" data-slider-value="[{{PRICE.MIN_SELECTED}},{{PRICE.MAX_SELECTED}}]" type="number">
+         </div>
+         <nav class="mm-menu mm-offcanvas" id="filters-widget-block-mm-menu">
+            <ul>
+               <li id="mm-filter-cat">
+                  <span>{#categories#}</span>
+                  <ul>
+                     
+                  </ul>
+               </li>
+               <li id="mm-filter-brands">
+                  <span>{#brands#}</span>
+                  <ul id="filters-widget-block-brands-mm-listview" data-key="brand">
+                     
+                  </ul>
+               </li>
+            </ul>
+         </nav>
+      </div>
+      <script id="filters-widget-block-data" type="application/json">{
+         "mmenu": {
+           "navbar": { "title": "{#filter#}" }
+         }
+         }
+      </script>
+   </div>
+</div>
+
+<script>
+
+    $( document ).ready(function() {
+
+                
+            $.ajax({
+              url: "/srv/service/filter/get/filters-variants-brands-categories-price?link="+window.location.pathname.split('/')[1],
+              dataType: "json"
+            }).done(function(data) {
+               var categories = data.CATEGORIES;
+               var brands = data.BRANDS;
+               var filters = data.FILTERS;
+               var variants_1 = data.VARIANTS.TYPE1_LIST;
+               var variants_2 = data.VARIANTS.TYPE2_LIST;
+
+               console.log(data);
+
+                  if(categories.length){
+                     for(var i=0;i<categories.length;i++){
+                        if(categories[i].ID != '450'){
+                           var child = '';
+                           var mm_child = '';
+                           if(categories[i].CHILDREN.length){
+                              for(var j=0;j<categories[i].CHILDREN.length;j++){
+                                 var dum = categories[i].CHILDREN;
+                                 child = child + '<li class="menu-item"><a class="menu-link '+(dum[j].SELECTED ? "active":"")+'" href="'+dum[j].URL+'" title="'+dum[j].NAME+'">'+dum[j].NAME+'&nbsp;<span class="text-muted">('+dum[j].COUNT+')</span></a></li>';
+                                 mm_child = mm_child + '<li><a href="/'+dum[j].URL+'" title="'+dum[j].NAME+'">'+dum[j].NAME+'<em class="Counter">('+dum[j].COUNT+')</em></a></li>';
+                              }
+                           }
+                           /*$('#filter-categories nav ul').append('<li class="menu-item '+(categories[i].CHILDREN.length ? "show":"")+'"><a class="menu-link '+(categories[i].SELECTED ? "active":"")+'" href="'+categories[i].URL+'" title="'+categories[i].NAME+'">'+categories[i].NAME+'&nbsp;<span class="text-muted">('+categories[i].COUNT+')</span></a><ul class="menu">'+child+'</ul></li>');*/
+                           $('#filter-categories nav ul.block-menu').append('<li class="menu-item '+(categories[i].CHILDREN.length ? "show":"")+'"><a class="menu-link '+(categories[i].SELECTED ? "active":"")+'" href="'+categories[i].URL+'" title="'+categories[i].NAME+'">'+categories[i].NAME+'&nbsp;<span class="text-muted">('+categories[i].COUNT+')</span></a><ul class="menu">'+child+'</ul></li>');
+                           $('#filters-widget-block-mm-menu ul #mm-filter-cat ul').append('<li>'+(categories[i].CHILDREN.length ? "":"<span>"+categories[i].NAME+"</span")+(categories[i].CHILDREN.length ? "<ul>"+mm_child+"</ul>":"")+(categories[i].CHILDREN.length ? "":"<a href='"+categories[i].URL+"' title='"+categories[i].NAME+"'>"+categories[i].NAME+"</a>")+(categories[i].CHILDREN.length ? "":"<em class='Counter'>"+categories[i].COUNT+"</em>")+'</li>');
+                        }
+                     }
+                  }
+                  //CATEGORIES END
+                  if(brands.length){
+                     var uri = window.location.search;
+                     var selected_brands;
+                     if(uri.split('brand=').length!=1){ selected_brands = uri.match('[?&]' + 'brand' + '=([^&]+)')[1].split('-');}
+
+                     for(var y=0;y<brands.length;y++){
+                        if(selected_brands){
+                           for(var q=0;q<selected_brands.length;q++){
+                              if(selected_brands[q]==brands[y].ID){
+                                 brands[y].SELECTED = 1;
+                              }
+                           }
+
+                        }
+                        $('#filters-widget-block-brands-collapse ul').append('<li><label class="custom-checkbox custom-control filters-widget-block-custom-control">'+(brands[y].SELECTED ? '<input class="custom-control-input" checked="" type="checkbox" value="'+brands[y].ID+'">':'<input class="custom-control-input" type="checkbox" value="'+brands[y].ID+'">')+'<span class="custom-control-indicator"></span><span class="custom-control-description"><span lang="en">'+brands[y].NAME+'</span>&nbsp;<span class="text-muted">('+brands[y].COUNT+')</span></span></label></li>');
+                        $('#filters-widget-block-mm-menu ul #mm-filter-brands ul').append('<li>'+(brands[y].SELECTED ? "<input class='Toggle' checked='' type='checkbox' value='"+brands[y].ID+"'>":"<input class='Toggle' type='checkbox' value='"+brands[y].ID+"'>")+'<em class="Counter">'+brands[y].COUNT+'</em><span>'+brands[y].NAME+'</span></li>');
+                     }
+                  }
+                  //BRANDS END
+                  if(filters.length){
+                     var uri = window.location.search;
+                     var selected_filters;
+                     if(uri.split('multi=').length!=1){ selected_filters = uri.match('[?&]' + 'multi' + '=([^&]+)')[1].split('+');}
+
+                     for(var j=0; j<filters.length;j++){
+                        var child = '';
+                        var mm_child = '';         
+                        for(var k=0; k<filters[j].VALUES.length;k++){
+                           if(selected_filters){
+                              for(var q=0;q<selected_filters.length;q++){
+                                 if(selected_filters[q]==filters[j].ID+'-'+filters[j].VALUES[k].ID){
+                                    filters[j].VALUES[k].SELECTED = 1;
+                                 }
+                              }
+
+                           }
+                           child = child + '<li>'+(filters[j].VALUES[k].SELECTED ? '<input class="Toggle" checked=""  type="checkbox" value="'+filters[j].ID+'-'+filters[j].VALUES[k].ID+'">':'<input class="Toggle"  type="checkbox" value="'+filters[j].ID+'-'+filters[j].VALUES[k].ID+'">')+'<em class="Counter">'+filters[j].VALUES[k].COUNT+'</em><span>'+filters[j].VALUES[k].NAME+'</span></li>'
+                           mm_child = mm_child + '<li><label class="custom-checkbox custom-control filters-widget-block-custom-control">'+(filters[j].VALUES[k].SELECTED ? '<input class="custom-control-input" checked=""  type="checkbox" value="'+filters[j].ID+'-'+filters[j].VALUES[k].ID+'">':'<input class="custom-control-input"  type="checkbox" value="'+filters[j].ID+'-'+filters[j].VALUES[k].ID+'">')+'<span class="custom-control-indicator"></span><span class="custom-control-description">'+filters[j].VALUES[k].NAME+'&nbsp;<span class="text-muted">('+filters[j].VALUES[k].COUNT+')</span></span></label></li>'
+                        }
+                        $('#filters-widget-block-mm-menu ul').append('<li><span>'+filters[j].NAME+'</span>'+(filters[j].TYPE===1 ? '<ul data-key="single">'+child+'</ul>':'<ul data-key="multi">'+child+'</ul>')+'</li>');
+                        $('#mm-brands-filter').after('<div class="block-body"><a class="block-link" data-toggle="collapse" href="#filters-widget-block-filters-'+filters[j].ID+'-collapse" title="'+filters[j].NAME+'"><div class="block-subtitle h6">'+filters[j].NAME+'</div></a><nav class="collapse show" id="filters-widget-block-filters-'+filters[j].ID+'-collapse">'+(filters[j].TYPE===1 ? '<ul class="filters-widget-block-list-unstyled list-unstyled" data-key="single">'+mm_child+'</ul>':'<ul class="filters-widget-block-list-unstyled list-unstyled" data-key="multi">'+mm_child+'</ul>')+'</nav></div>');
+                     }
+                  }
+                  //FILTERS END
+                  if(variants_1.length){
+                     var temp = '';
+                    for(var i=0;i<variants_1.length;i++){
+                        temp = temp + '<li>'+(variants_1[i].SELECTED ? '<input class="Toggle" checked=""  type="checkbox" value="'+variants_1[i].ID+'">':'<input class="Toggle" type="checkbox" value="'+variants_1[i].ID+'">')+'<em class="Counter">'+variants_1[i].COUNT+'</em><span>'+variants_1[i].NAME+'</span></li>'
+                    }
+                    $('#filters-widget-block-mm-menu ul').append('<li><span>Renk</span><ul id="filters-widget-block-colors-mm-listview" data-key="type1">'+temp+'</ul></li>')
+                  }
+                  //VARIANTS1 END
+                  if(variants_2.length){
+                     var temp = '';
+                     for(var i=0;i<variants_2.length;i++){
+                         temp = temp + '<li>'+(variants_2[i].SELECTED ? '<input class="Toggle" checked=""  type="checkbox" value="'+variants_2[i].ID+'">':'<input class="Toggle" type="checkbox" value="'+variants_2[i].ID+'">')+'<em class="Counter">'+variants_2[i].COUNT+'</em><span>'+variants_2[i].NAME+'</span></li>'
+                     }
+                     $('#filters-widget-block-mm-menu ul').append('<li><span>Beden</span><ul id="filters-widget-block-colors-mm-listview" data-key="type1">'+temp+'</ul></li>')
+                  }
+            });
+            //AJAX FINISH
+});
+        
+</script> 

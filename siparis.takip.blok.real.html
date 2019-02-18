@@ -1,0 +1,105 @@
+<style>
+.order-results table td{
+    vertical-align: middle !important;
+}
+.order-results table td img{
+    max-width: 100px;
+}
+.order-results .text-muted{
+    color: #d24646!important;
+}
+</style>
+{if $PAGE_ID == 5}{include file = "theme/v4/Blok/SiparisTakip/Orta/user_login-order-tracking.tpl"}{else}<div class="block block-section"><div class="block-content"><div class="block-header"><div class="block-title h3">{$BLOCK_TITLE}</div><p class="block-text" data-i18n="to-track-your-order-please-enter-your-order-number-and-email-address-in-the-box-below-and-press-the-show-button-this-was-given-to-you-on-your-receipt-and-in-the-confirmation-email-you-should-have-received"></p></div><form class="block-body align-sm-left"><div class="form-group row"><label class="col-lg-3 col-sm-4 form-control-label" data-i18n="order-number" for="order-tracking-section-block-order-number-input"></label><div class="col-lg-9 col-sm-8"><input class="form-control form-control-lg" id="order-tracking-section-block-order-number-input" autofocus="" data-i18n="[placeholder]enter-your-order-number"></div></div><div class="form-group row"><label class="col-lg-3 col-sm-4 form-control-label" for="order-tracking-section-block-email-address-input">{#email#}</label><div class="col-lg-9 col-sm-8"><input class="form-control form-control-lg" id="order-tracking-section-block-email-address-input" data-i18n="[placeholder]enter-your-email-address" type="email"></div></div><div class="form-group row"><div class="col-lg-9 col-sm-8 offset-lg-3 offset-sm-4"><button class="block-link btn btn-lg btn-primary" id="show_order" title="{#goster#}">{#goster#}</button></div></div></form></div></div>{/if}
+
+
+<script>
+    $('#show_order').click(function (e) {
+        e.preventDefault();
+        var orderNo = encodeURI($('#order-tracking-section-block-order-number-input').val());
+        var mail = encodeURI($('#order-tracking-section-block-email-address-input').val());
+        var url = window.location.href.replace(/\?.*?$/g, '');
+        url += "?order=" + orderNo + "&mail=" + mail;
+
+        window.location.href = url;
+    });
+</script>
+
+{if $ORDER_FOUND == -1}
+        <div class="row mb">
+            <div class="box col-12 box-border errorDiv">{#bulunamadi_mesaj#}</div>
+        </div>
+{/if}
+
+{if $ORDER_FOUND == 1}
+    <div class="row order-results">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body p-0">
+                    <div class="row p-5">
+
+                        <div class="col-md-12 text-center">
+                            <p class="font-weight-bold mb-1">Sipariş Detayları</p>
+                            <p class="text-muted">{$ORDER.create_date}</p>
+                        </div>
+                    </div>
+
+                    <hr class="my-5">
+
+                    <div class="row pb-5 p-5">
+                        <div class="col-md-6">
+                            <p class="font-weight-bold mb-4">{#alici_ad#}</p>
+                            <p class="mb-1">{$ORDER_ADDRESS.first_name} {$ORDER_ADDRESS.last_name}</p>
+                            <p class="mb-1">{$ORDER_ADDRESS.address}</p>
+                            <p class="mb-1">{$ORDER_ADDRESS.town}/{$ORDER_ADDRESS.city}</p>
+
+                        </div>
+
+                        <div class="col-md-6 text-right">
+                            <p class="font-weight-bold mb-4">Ödeme ve Teslimat Detayları</p>
+                            <p class="mb-1"><span class="text-muted">{#siparis_no#}: </span> {$ORDER.order_number}</p>
+                            <p class="mb-1"><span class="text-muted">{#siparis_durum#}: </span> {$ORDER.status}</p>
+                            <p class="mb-1"><span class="text-muted">{#toplam_tutar#}: </span> {$ORDER.order_total} {$ORDER.order_currency}</p>
+                            <p class="mb-1"><span class="text-muted">{#odeme_sekli#}: </span> {$ORDER.payment_method}</p>
+                            <p class="mb-1"><span class="text-muted">{#kargo_firma#}: </span> {$ORDER.cargo_company_name}</p>
+                            <p class="mb-1"><span class="text-muted">{#kargo_no#}: </span> {$ORDER.cargo_number}</p>
+                        </div>
+                    </div>
+
+                    <div class="row p-5">
+                        <div class="col-md-12">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th class="border-0 text-uppercase small font-weight-bold">{#urun#}</th>
+                                        <th class="border-0 text-uppercase small font-weight-bold">{#urun_adi#}</th>
+                                        <th class="border-0 text-uppercase small font-weight-bold">{#miktar#} {#birim#}</th>
+                                        <th class="border-0 text-uppercase small font-weight-bold">{#birim_tutar#}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {foreach $PRODUCTS as $PRODUCT}
+                                        <tr class="line-bottom">
+                                            <td><img src="/Data/K/{$PRODUCT.image}"/></td>
+                                            <td class="line-right">{$PRODUCT.product_name}</td>
+                                            <td class="line-right">{$PRODUCT.count}</td>
+                                            <td class="line-right">{$PRODUCT.sale_price} {$PRODUCT.sale_currency}</td>
+                                        </tr>
+                                    {/foreach}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-row-reverse bg-dark text-white p-4">
+
+                        <div class="py-3 px-5 text-right">
+                            <div class="mb-2">{#toplamtutar#}</div>
+                            <div class="h2 font-weight-light">{$ORDER.order_total} {$ORDER.order_currency}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {/if}
