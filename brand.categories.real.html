@@ -1,11 +1,10 @@
-{if $CATEGORIES}
-{foreach $CATEGORIES as $grid}
-{if $grid.NAME == "Marka Kategorileri"}
+{if $CATEGORY_LIST}
+
 <div class="block block-attached block-brand-categories block-section">
     <div class="block-content">
         <div class="block-body">
             <nav class="hidden-xs-down menu">
-            {foreach $grid.CHILDREN as $item}
+            {foreach $CATEGORY_LIST as $item}
                 {if $item.NAME|lower|replace:($NAVIGATION_LIST.0.TITLE|cat:" "|lower):""|count_characters != $item.NAME|count_characters}
                 <a class="menu-link" href="{$item.URL}" title="{$item.NAME}">{$item.NAME}</a>
                 {/if}
@@ -14,7 +13,7 @@
             <div class="dropdown hidden-sm-up">
                 <button class="btn btn-block btn-outline-primary dropdown-toggle" data-toggle="dropdown">Marka serileri</button>
                 <div class="dropdown-menu text-center w-100">
-                    {foreach $grid.CHILDREN as $item}
+                    {foreach $CATEGORY_LIST as $item}
                         {if $item.NAME|lower|replace:($NAVIGATION_LIST.0.TITLE|cat:" "|lower):""|count_characters != $item.NAME|count_characters}
                         <a class="dropdown-item" href="{$item.URL}" title="{$item.NAME}">{$item.NAME}</a>
                         {/if}
@@ -24,8 +23,6 @@
         </div>
     </div>
 </div>
-{/if}
-{/foreach}
+{if $IS_ADMIN_LOGGED}{debug}{/if}
 {/if}
 <script id="brand-campaigns-section-block-data" type="application/json">{ "id": "{$BRAND_ID}" }</script>
-{if $IS_ADMIN_LOGGED}{debug}{/if}
